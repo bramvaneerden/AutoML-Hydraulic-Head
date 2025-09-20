@@ -94,12 +94,12 @@ def evaluate_autogluon_backtest(
     )
     fit_time = time.time() - start_time
 
-    try:
-        lb = predictor.leaderboard(silent=True)
-        os.makedirs('./AG_model_info', exist_ok=True)
-        lb.to_csv(f'./AG_model_info/leaderboard_{target}_{strat}_{datetime.now().strftime("%m_%d_%Y_%H_%M_%S")}.csv', index=False)
-    except Exception as e:
-        print(f"Could not save leaderboard (non-fatal): {e}")
+    # try:
+    #     lb = predictor.leaderboard(silent=True)
+    #     os.makedirs('./AG_model_info', exist_ok=True)
+    #     lb.to_csv(f'./AG_model_info/leaderboard_{target}_{strat}_{datetime.now().strftime("%m_%d_%Y_%H_%M_%S")}.csv', index=False)
+    # except Exception as e:
+    #     print(f"Could not save leaderboard (non-fatal): {e}")
 
     # Backtesting across windows
     splitter = ExpandingWindowSplitter(prediction_length=prediction_length, num_val_windows=num_val_windows)
@@ -233,7 +233,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     base_path = find_base_path()
-    files = os.listdir(os.path.join(base_path, '2_Hydraulic head data/Sensor data'))
+    files = os.listdir((base_path +  '\\2_Hydraulic head data\\Sensor data'))
 
     seeds = [123,124,125] 
     n_windows = 10 

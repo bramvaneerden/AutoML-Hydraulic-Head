@@ -109,16 +109,3 @@ def evaluate_autogluon(df, prediction_length, covariates=True, multiple_ts=False
     
     y_pred.to_csv('./newcsv_aarland4.csv')
     return site_results
-
-# prediction_length = 3
-# np.random.seed(42)
-# base_path = find_base_path()
-# files = os.listdir(base_path + '2_Hydraulic head data/Sensor data')
-
-# df = pd.DataFrame()
-
-# for i in range(3):
-#     temp_df = load_timeseries(files[i])
-#     temp_df['value'] = temp_df['value'].diff()
-#     temp_df = temp_df.dropna(axis=0)
-#     df = pd.concat([df, temp_df])

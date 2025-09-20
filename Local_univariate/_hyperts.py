@@ -43,15 +43,6 @@ def evaluate_hyperts(df, prediction_length,num_windows, mode, seed=123):
     X_test, y_test = model.split_X_y(test_data.copy())
     y_pred = model.predict(X_test)
     model.plot(forecast=y_pred, actual=test_data, interactive=True)
-    # backtesting
-    # for i in range(num_windows):
-    #     window_start = i * prediction_length
-    #     test_window = test_data[window_start:(window_start+prediction_length)]
-    #     X_test, y_test = model.split_X_y(test_window.copy())
-    #     # print(X_test)
-    #     y_pred = model.predict(X_test)
-    #     print(y_pred)
-    #     predictions = pd.concat([predictions, y_pred])
         
     MAPE, MSE, MAE = calculate_metrics(test_data['value'], y_pred['value'])
     metrics.append({'site':site,
@@ -71,7 +62,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     base_path = find_base_path()
-    data_dir = os.path.join(base_path, '2_Hydraulic head data', 'Sensor data')
+    data_dir = base_path + '\\2_Hydraulic head data + Sensor data'
     files = [f for f in os.listdir(data_dir) if not f.startswith('.')]
 
     seeds = (123, 124, 125)

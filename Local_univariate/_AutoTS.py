@@ -106,7 +106,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     base_path = find_base_path()
-    data_dir = os.path.join(base_path, '2_Hydraulic head data', 'Sensor data')
+    data_dir = (base_path + '\\2_Hydraulic head data\\Sensor data')
     files = [f for f in os.listdir(data_dir) if not f.startswith('.')]
 
     seeds = (123, 124, 125)
@@ -123,7 +123,6 @@ def main():
                     df=load_timeseries(file),
                     prediction_length=3,
                     num_windows = 10,
-                    mode='dl',
                     seed=seed
                 )
 

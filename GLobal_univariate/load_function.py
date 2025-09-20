@@ -1,8 +1,9 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 import numpy as np
-import os
+import pandas as pd
+from AGTS_proxy import evaluate_autogluon as autogluon_proxy
+import random
 from pathlib import Path
 
 def find_base_path():
@@ -40,8 +41,44 @@ def load_timeseries(file):
     return df
 
 def calculate_metrics(y_true, y_pred):
+    """calculate the three metrics were using
+
+    Args:
+        y_true (list or array): ground truth values
+        y_pred (list or array): predicted values
+
+    Returns:
+        tuple(MAPE, MSE, MAE): MAPE, MSE, MAE
+    """
     MAPE = mean_absolute_percentage_error(y_true, y_pred)
     MSE = mean_squared_error(y_true, y_pred)
     MAE = mean_absolute_error(y_true, y_pred)
 
     return MAPE, MSE, MAE
+
+
+def run_proxy_experiments(df, prediction__length, random_seed, target, strat, num_val_windows, n_runs, covariates):    
+    """Run experiments with the proxy model"""
+    results = []
+    for i in range(n_runs):
+        run_seed = random_seed + i
+        run_df = df.copy(deep=True)
+        
+        np.random.seed(run_seed)
+        random.seed(run_seed)
+        
+        print(f"Running proxy experiment with seed {run_seed}")
+        
+        run_results = autogluon_proxy(
+            run_df, 
+            prediction_length=prediction__length,
+            random_seed=run_seed,
+            target=target,
+            strat=strat,
+            num_val_windows=num_val_windows,
+            covariates=covariates
+        )
+        
+        results.extend(run_results)
+
+    return results
