@@ -33,10 +33,10 @@ def run_experiments(df, prediction__length, random_seed, target, strat, num_val_
 
     return results
 
-def preload_timeseries(files,hhnk=False):
+def preload_timeseries(files):
     ts = {}
     for fname in files:
-        df = load_timeseries(fname, hhnk=hhnk).copy()
+        df = load_timeseries(fname).copy()
         df['date'] = pd.to_datetime(df['date'])
         df = df.sort_values('date')
         ts[fname] = df
@@ -59,7 +59,7 @@ def process_single_file(args):
     
     # Load data 
     files = os.listdir(base_path)
-    preloaded = preload_timeseries(files=files, hhnk=True)
+    preloaded = preload_timeseries(files=files)
     
     print(f"Process {os.getpid()}: Starting BO for {file}")
     
@@ -99,7 +99,7 @@ def main_multiprocessing_simple():
     os.makedirs('plots',exist_ok=True)
 
     base_path = find_base_path()
-    files = os.listdir(base_path + '2_Hydraulic head data\\Sensor data')    
+    files = os.listdir(base_path + '\\2_Hydraulic head data\\Sensor data')    
     args_list = [(file, i, base_path) for i, file in enumerate(files)]
     
     with mp.Pool(processes=1) as pool:

@@ -32,6 +32,7 @@ def preload_features(files, preloaded):
     combined = pd.concat(dfs).dropna(axis=0)
     features = extract_features(combined, column_id='id', column_sort='time', n_jobs=0)
     features = features.dropna(axis=1, how='any')  # drop features with NaNs
+    print(f"Features: \n {features}")
     return features
 
 class TimeSeriesPoolOptimizer:
@@ -78,9 +79,21 @@ class TimeSeriesPoolOptimizer:
         self.best_score = float('inf')
         self.best_subset = []
         
-        # GP kernel, should try a couple more different ones
-        self.kernel = ConstantKernel() * Matern(nu=2.5) + WhiteKernel(noise_level=1e-5)
-        # self.kernel = Matern(nu=2.5, length_scale=[1.0] * 19, length_scale_bounds=(0.01, 100.0))
+        P = self.pca_df.shape[1]
+        rep_dim = 2 * P + 2 # mean, var, dist, size
+
+        # ARD Matern: one length_scale per input dimension
+        ard_length_scales = [1.0] * rep_dim
+
+        self.kernel = ConstantKernel() * Matern(
+            nu=2.5,
+            length_scale=ard_length_scales,
+            length_scale_bounds=(0.01, 100.0)
+        ) + WhiteKernel(
+            noise_level=1e-5,
+            noise_level_bounds=(1e-8, 1e-2)
+        )
+
         self.gp = GaussianProcessRegressor(
             kernel=self.kernel,
             alpha=1e-6,
