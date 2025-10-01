@@ -1,39 +1,36 @@
-import logging
-
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
 from darts.timeseries import TimeSeries
-from darts import concatenate
 from darts.dataprocessing.transformers import Scaler
-from darts.datasets import AirPassengersDataset, ElectricityDataset, MonthlyMilkDataset
-from darts.metrics import mae, mape, mse
 from darts.models import (
-    VARIMA,
-    BlockRNNModel,
     TFTModel,
     RNNModel,
     TiDEModel
 )
-from darts.utils.callbacks import TFMProgressBar
-from darts.utils.timeseries_generation import (
-    datetime_attribute_timeseries,
-    sine_timeseries,
-)
 
 # logging.disable(logging.CRITICAL)
 
-from multivar_load_function import load_timeseries, set_all_seeds, preload_timeseries, find_base_path, calculate_metrics
+from load_function import load_timeseries, find_base_path
 
-
-import random
 import os
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
+from sklearn.metrics import mean_absolute_error
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
-from darts.utils.likelihood_models.torch import LaplaceLikelihood
+
+def preload_timeseries(files):
+    ts = {}
+    for fname in files:
+        df = load_timeseries(fname).copy()
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.sort_values('date')
+        site_id = df['site'].unique().tolist()[0]
+        ts[site_id] = df
+
+    max_start = max(df['date'].min() for df in ts.values())
+    return {f: df.loc[df['date'] >= max_start] for f, df in ts.items()}
 
 def load_model(model):
     
@@ -215,8 +212,9 @@ def train_models(ts, covar,seed, target, window_size=3, n_windows=10,use_ensembl
 
         
 def main():
+    os.makedirs('multivar', exist_ok=True)
     base_path = find_base_path()
-    files = os.listdir(base_path + '2_Hydraulic head data/Sensor data')
+    files = os.listdir(base_path + '\\2_Hydraulic head data/Sensor data')
     prediction__length = 3
     
     print("preloading timeseries..")
